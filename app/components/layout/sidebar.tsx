@@ -1,34 +1,47 @@
+import { CourseType } from "@/app/types/course";
 import Link from "next/link";
 import { BiFile } from "react-icons/bi";
 import { GrAddCircle } from "react-icons/gr";
 
-const DUMMY = [
-  {
-    id: "dummy",
-    title: "[보건자료처리] 기술통계 및 자료의 기초",
-  },
-];
+const getData = async () => {
+  try {
+    const res = await fetch(`${process.env.APP_HOST}/apis/course`);
+    return (await res.json()) as Promise<CourseType[]>;
+  } catch (e) {
+    return [];
+  }
+};
 
-export default function Sidebar() {
+export default async function Sidebar() {
+  const courses = await getData();
   return (
-    <aside className="top-0 flex min-h-0 w-80 flex-col border-r">
+    <aside className="sticky top-0 flex h-screen min-h-0 w-80 flex-col border-r">
       <h1 className="flex p-8 text-xl font-extrabold">서비스 이름</h1>
       <ul className="h-full w-full">
-        {DUMMY.map((item) => (
-          <li key={item.id}>
-            <Link
-              href={`/lecture/${item.id}`}
-              className="flex cursor-pointer items-center gap-2 px-8 py-2 font-medium hover:bg-black/5"
-            >
-              <BiFile size={28} />
-              <div className="line-clamp-1">{item.title}</div>
-            </Link>
-          </li>
-        ))}
+        {courses.length > 0 ? (
+          courses.map((item) => (
+            <li key={item.id}>
+              <Link
+                href={`/course/${item.id}`}
+                className="flex cursor-pointer items-center gap-2 px-8 py-2 font-medium hover:bg-black/5"
+              >
+                <BiFile size={28} />
+                <div className="line-clamp-1">{item.title}</div>
+              </Link>
+            </li>
+          ))
+        ) : (
+          <div className="flex w-full justify-center">
+            아직 등록된 강의가 없습니다.
+          </div>
+        )}
       </ul>
-      <button className="flex w-full items-center justify-center gap-2 border-t py-4 font-semibold hover:bg-black/5">
+      <Link
+        href={"/new"}
+        className="flex w-full items-center justify-center gap-2 border-t py-4 font-semibold hover:bg-black/5"
+      >
         <GrAddCircle />새 강의
-      </button>
+      </Link>
     </aside>
   );
 }
