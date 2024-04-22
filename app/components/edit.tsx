@@ -5,30 +5,49 @@ import { BiCheck, BiDownload, BiMicrophone } from "react-icons/bi";
 import { CourseType } from "../types/course";
 import { useState } from "react";
 import cc from "classcat";
+import { revalidateTag } from "next/cache";
+import { revalidateTags } from "../actions/revalidate";
 
 export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
   const [course, setCourse] = useState(defaultValue);
   const [uploadLoading, setUploadLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
 
   const handleSave = async () => {
-    if (course.id) {
-      await fetch(`/api/course/${course.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(course),
-      });
-    } else {
-      const res = await fetch(`/api/course`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(course),
-      });
-      const data = await res.json();
-      setCourse(data);
+    setSaveLoading(true);
+    try {
+      if (course.id) {
+        await fetch(`/api/course/${course.id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: course.title,
+            content: course.content,
+            summary: course.summary,
+          }),
+        });
+      } else {
+        const res = await fetch(`/api/course`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(course),
+        });
+        const data = await res.json();
+        setCourse(data);
+      }
+      try {
+        revalidateTags(["course-list", `course-${course.id}`]);
+      } catch (e) {
+        console.error(e);
+      }
+    } catch (e) {
+      alert("저장에 실패했습니다.");
+    } finally {
+      setSaveLoading(false);
     }
   };
 
@@ -65,8 +84,16 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
             연습 문제
           </Link>
         </div>
-        <button className="btn btn-primary btn-sm" onClick={handleSave}>
-          저장
+        <button
+          className="btn btn-primary btn-sm"
+          onClick={handleSave}
+          disabled={saveLoading}
+        >
+          {saveLoading ? (
+            <div className="loading loading-dots loading-sm" />
+          ) : (
+            "저장"
+          )}{" "}
         </button>
       </header>
       <div className="flex w-full flex-col gap-8 p-12">

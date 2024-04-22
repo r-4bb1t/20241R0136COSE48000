@@ -5,7 +5,11 @@ import { GrAddCircle } from "react-icons/gr";
 
 const getData = async () => {
   try {
-    const res = await fetch(`${process.env.APP_HOST}/apis/course`);
+    const res = await fetch(`${process.env.APP_HOST}/api/course`, {
+      next: {
+        tags: ["course-list"],
+      },
+    });
     return (await res.json()) as Promise<CourseType[]>;
   } catch (e) {
     return [];
@@ -16,7 +20,11 @@ export default async function Sidebar() {
   const courses = await getData();
   return (
     <aside className="sticky top-0 flex h-screen min-h-0 w-80 flex-col border-r">
-      <h1 className="flex p-8 text-xl font-extrabold">서비스 이름</h1>
+      <div className="px-8 py-4">
+        <Link href={"/"} className="btn btn-ghost text-xl font-extrabold">
+          서비스 이름
+        </Link>
+      </div>
       <ul className="h-full w-full">
         {courses.length > 0 ? (
           courses.map((item) => (

@@ -4,7 +4,11 @@ import { redirect } from "next/navigation";
 
 const getData = async (id: string) => {
   try {
-    const res = await fetch(`${process.env.APP_HOST}/api/course/${id}`);
+    const res = await fetch(`${process.env.APP_HOST}/api/course/${id}`, {
+      next: {
+        tags: [`course-${id}`],
+      },
+    });
     return (await res.json()) as Promise<CourseType>;
   } catch (e) {
     redirect("/");

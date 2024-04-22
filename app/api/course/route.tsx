@@ -14,7 +14,11 @@ export const POST = async (req: Request) => {
 };
 
 export const GET = async (req: Request) => {
-  const res = await fetch(`${process.env.API_HOST}/course`);
+  const res = await fetch(`${process.env.API_HOST}/course`, {
+    next: {
+      tags: ["course-list"],
+    },
+  });
   const data = await res.json();
 
   return Response.json(
