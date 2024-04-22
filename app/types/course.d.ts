@@ -5,6 +5,9 @@ export interface CourseType {
   content: string;
   summary?: string;
 
+  department: string;
+  category: string;
+
   questions: QuestionType[];
 }
 

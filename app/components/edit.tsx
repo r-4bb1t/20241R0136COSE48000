@@ -5,13 +5,15 @@ import { BiCheck, BiDownload, BiMicrophone } from "react-icons/bi";
 import { CourseType } from "../types/course";
 import { useState } from "react";
 import cc from "classcat";
-import { revalidateTag } from "next/cache";
 import { revalidateTags } from "../actions/revalidate";
+import { useRouter } from "next/navigation";
 
 export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
   const [course, setCourse] = useState(defaultValue);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
+
+  const router = useRouter();
 
   const handleSave = async () => {
     setSaveLoading(true);
@@ -23,9 +25,7 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            title: course.title,
-            content: course.content,
-            summary: course.summary,
+            ...course,
           }),
         });
       } else {
@@ -37,7 +37,7 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
           body: JSON.stringify(course),
         });
         const data = await res.json();
-        setCourse(data);
+        router.push(`/course/${data.id}`);
       }
       try {
         revalidateTags(["course-list", `course-${course.id}`]);
@@ -56,6 +56,8 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("department", course.department);
+      formData.append("category", course.category);
 
       const res = await fetch(`/api/upload`, {
         method: "POST",
@@ -98,7 +100,24 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
       </header>
       <div className="flex w-full flex-col gap-8 p-12">
         <div className="flex items-center gap-4">
-          <div className="shrink-0 text-lg font-bold">제목</div>
+          <div className="shrink-0 text-lg font-bold">학과(부)</div>
+          <input
+            className="input input-sm input-bordered w-full"
+            value={course.department}
+            onChange={(e) =>
+              setCourse({ ...course, department: e.target.value })
+            }
+          />
+          <div className="shrink-0 text-lg font-bold">강의명</div>
+          <input
+            className="input input-sm input-bordered w-full"
+            value={course.category}
+            onChange={(e) => setCourse({ ...course, category: e.target.value })}
+          />
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="shrink-0 text-lg font-bold">노트 제목</div>
           <input
             className="input input-sm input-bordered w-full"
             value={course.title}

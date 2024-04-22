@@ -1,16 +1,18 @@
 export const POST = async (req: Request) => {
-  const { title, content, summary } = await req.json();
-  await fetch(`${process.env.API_HOST}/course`, {
+  const course = await req.json();
+  const res = await fetch(`${process.env.API_HOST}/course`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ title, content, summary }),
+    body: JSON.stringify(course),
   });
 
-  return {
-    status: 200,
-  };
+  const data = await res.json();
+
+  return Response.json({
+    id: `${data.id}`,
+  });
 };
 
 export const GET = async (req: Request) => {
@@ -30,10 +32,16 @@ export const GET = async (req: Request) => {
         user_id: number;
         course_name: string;
         summary: string;
+
+        department: string;
+        category: string;
       }) => ({
         id: `${item.id}`,
         title: item.course_name,
         content: item.content,
+
+        department: item.department,
+        category: item.category,
       }),
     ),
   );

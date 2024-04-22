@@ -8,6 +8,8 @@ export default function Home() {
           title: "",
           content: "",
           questions: [],
+          department: "",
+          category: "",
         }}
       />
     </main>

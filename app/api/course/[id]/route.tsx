@@ -17,6 +17,9 @@ export const GET = async (
     id: `${data.id}`,
     title: data.course_name,
     content: data.content,
+    summary: data.summary,
+    department: data.department,
+    category: data.category,
   });
 };
 
@@ -24,15 +27,16 @@ export const PATCH = async (
   req: Request,
   { params: { id } }: { params: { id: string } },
 ) => {
-  const { title, content, summary } = await req.json();
-  console.log(title, content, summary);
+  const course = await req.json();
+
+  console.log(course);
 
   const res = await fetch(`${process.env.API_HOST}/course/${id}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ title, content, summary }),
+    body: JSON.stringify(course),
   });
 
   const data = await res.json();
