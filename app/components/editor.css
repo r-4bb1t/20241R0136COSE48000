@@ -1,0 +1,9 @@
+.ProseMirror,
+.toastui-editor-defaultUI,
+.toastui-editor-contents {
+  font-family: "Wanted Sans", sans-serif !important;
+}
+
+.toastui-editor-contents .toastui-editor-md-preview-highlight::after {
+  display: none;
+}

@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@toast-ui/editor": "^3.2.2",
+    "@toast-ui/react-editor": "^3.2.3",
     "classcat": "^5.0.5",
     "daisyui": "^4.10.2",
     "next": "14.1.3",

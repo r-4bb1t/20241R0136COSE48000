@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import cc from "classcat";
 import { revalidateTags } from "../actions/revalidate";
 import { useRouter } from "next/navigation";
+import Editor from "./editor";
 
 export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
   const [course, setCourse] = useState(defaultValue);
@@ -188,16 +189,15 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
           </div>
           <div className="relative h-full w-full">
             {uploadLoading && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-base-100/70">
                 <div className="loading" />
                 <div>녹음본의 길이에 따라 시간이 소요될 수 있습니다.</div>
               </div>
             )}
-            <textarea
-              className="textarea textarea-bordered h-96 w-full resize-none disabled:opacity-30"
-              value={course.content}
-              onChange={(e) => {
-                setCourse({ ...course, content: e.target.value });
+            <Editor
+              text={course.content}
+              onChange={(value: string) => {
+                setCourse({ ...course, content: value });
                 setSaved(false);
               }}
               disabled={uploadLoading}
@@ -223,19 +223,18 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
           <div className="shrink-0 text-lg font-bold">강의 요약</div>
           <div className="relative h-full w-full">
             {summaryLoading && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-base-100/70">
                 <div className="loading" />
                 <div>필기의 길이에 따라 시간이 소요될 수 있습니다.</div>
               </div>
             )}
-            <textarea
-              className="textarea textarea-bordered h-96 w-full resize-none disabled:opacity-30"
-              value={course.summary}
-              disabled={summaryLoading}
-              onChange={(e) => {
-                setCourse({ ...course, summary: e.target.value });
+            <Editor
+              text={course.summary ?? ""}
+              onChange={(value: string) => {
+                setCourse({ ...course, summary: value });
                 setSaved(false);
               }}
+              disabled={summaryLoading}
             />
           </div>
         </div>
