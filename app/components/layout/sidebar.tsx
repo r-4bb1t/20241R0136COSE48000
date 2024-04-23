@@ -48,7 +48,7 @@ export default async function Sidebar() {
         href={"/new"}
         className="flex w-full items-center justify-center gap-2 border-t py-4 font-semibold hover:bg-black/5"
       >
-        <GrAddCircle />새 강의
+        <GrAddCircle />새 강의노트
       </Link>
     </aside>
   );

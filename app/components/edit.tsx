@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { BiCheck, BiDownload, BiMicrophone } from "react-icons/bi";
 import { CourseType } from "../types/course";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import cc from "classcat";
 import { revalidateTags } from "../actions/revalidate";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,8 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
   const [course, setCourse] = useState(defaultValue);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [saved, setSaved] = useState(defaultValue.id ? true : false);
 
   const router = useRouter();
 
@@ -39,6 +41,7 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
         const data = await res.json();
         router.push(`/course/${data.id}`);
       }
+      setSaved(true);
       try {
         revalidateTags(["course-list", `course-${course.id}`]);
       } catch (e) {
@@ -72,9 +75,33 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
     }
   };
 
+  const handleSummary = async () => {
+    try {
+      setSummaryLoading(true);
+      const res = await fetch(`/api/summary`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: course.content,
+          department: course.department,
+          category: course.category,
+        }),
+      });
+      const data = await res.json();
+      setCourse({ ...course, summary: data.summary });
+      setSaved(false);
+    } catch (e) {
+      alert("요약에 실패했습니다.");
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+
   return (
     <>
-      <header className="sticky top-0 flex justify-between border-b bg-base-100 px-6 py-4">
+      <header className="sticky top-0 z-10 flex justify-between border-b bg-base-100 px-6 py-4">
         <div className="flex items-center gap-6">
           <Link href={`/course/${course.id}`} className="btn btn-ghost btn-sm">
             강의 자료
@@ -89,13 +116,18 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
         <button
           className="btn btn-primary btn-sm"
           onClick={handleSave}
-          disabled={saveLoading}
+          disabled={saveLoading || saved}
         >
           {saveLoading ? (
             <div className="loading loading-dots loading-sm" />
           ) : (
             "저장"
-          )}{" "}
+          )}
+          {saved && (
+            <>
+              됨<BiCheck />
+            </>
+          )}
         </button>
       </header>
       <div className="flex w-full flex-col gap-8 p-12">
@@ -104,15 +136,19 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
           <input
             className="input input-sm input-bordered w-full"
             value={course.department}
-            onChange={(e) =>
-              setCourse({ ...course, department: e.target.value })
-            }
+            onChange={(e) => {
+              setCourse({ ...course, department: e.target.value });
+              setSaved(false);
+            }}
           />
           <div className="shrink-0 text-lg font-bold">강의명</div>
           <input
             className="input input-sm input-bordered w-full"
             value={course.category}
-            onChange={(e) => setCourse({ ...course, category: e.target.value })}
+            onChange={(e) => {
+              setCourse({ ...course, category: e.target.value });
+              setSaved(false);
+            }}
           />
         </div>
 
@@ -121,7 +157,10 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
           <input
             className="input input-sm input-bordered w-full"
             value={course.title}
-            onChange={(e) => setCourse({ ...course, title: e.target.value })}
+            onChange={(e) => {
+              setCourse({ ...course, title: e.target.value });
+              setSaved(false);
+            }}
           />
         </div>
 
@@ -134,11 +173,7 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
                 uploadLoading && "btn-disabled",
               ])}
             >
-              {uploadLoading ? (
-                <div className="loading loading-xs" />
-              ) : (
-                <BiMicrophone />
-              )}{" "}
+              <BiMicrophone />
               녹음본에서 불러오기
               <input
                 type="file"
@@ -151,18 +186,33 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
               />
             </label>
           </div>
-          <textarea
-            className="textarea textarea-bordered h-96 resize-none"
-            value={course.content}
-            onChange={(e) => setCourse({ ...course, content: e.target.value })}
-            disabled={uploadLoading}
-          />
+          <div className="relative h-full w-full">
+            {uploadLoading && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+                <div className="loading" />
+                <div>녹음본의 길이에 따라 시간이 소요될 수 있습니다.</div>
+              </div>
+            )}
+            <textarea
+              className="textarea textarea-bordered h-96 w-full resize-none disabled:opacity-30"
+              value={course.content}
+              onChange={(e) => {
+                setCourse({ ...course, content: e.target.value });
+                setSaved(false);
+              }}
+              disabled={uploadLoading}
+            />
+          </div>
           <div className="flex w-full items-center justify-end gap-4">
             <button className="btn btn-ghost">
               파일로 저장하기
               <BiDownload />
             </button>
-            <button className="btn btn-ghost">
+            <button
+              className="btn btn-ghost"
+              onClick={handleSummary}
+              disabled={summaryLoading || uploadLoading}
+            >
               요약하기
               <BiCheck />
             </button>
@@ -171,11 +221,23 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
 
         <div className="flex flex-col gap-4">
           <div className="shrink-0 text-lg font-bold">강의 요약</div>
-          <textarea
-            className="textarea textarea-bordered h-96 resize-none"
-            value={course.summary}
-            onChange={(e) => setCourse({ ...course, summary: e.target.value })}
-          />
+          <div className="relative h-full w-full">
+            {summaryLoading && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+                <div className="loading" />
+                <div>필기의 길이에 따라 시간이 소요될 수 있습니다.</div>
+              </div>
+            )}
+            <textarea
+              className="textarea textarea-bordered h-96 w-full resize-none disabled:opacity-30"
+              value={course.summary}
+              disabled={summaryLoading}
+              onChange={(e) => {
+                setCourse({ ...course, summary: e.target.value });
+                setSaved(false);
+              }}
+            />
+          </div>
         </div>
       </div>
     </>

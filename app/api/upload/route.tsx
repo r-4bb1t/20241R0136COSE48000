@@ -9,6 +9,6 @@ export const POST = async (req: Request) => {
   const data = await res.json();
 
   return Response.json({
-    transcript: data.map((d: string[]) => d[1]).join(""),
+    transcript: data.map((d: string[]) => d[1]).join("\n\n"),
   });
 };
