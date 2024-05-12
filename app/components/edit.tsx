@@ -102,7 +102,7 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
 
   return (
     <>
-      <header className="sticky top-0 z-10 flex justify-between border-b bg-base-100 px-6 py-4">
+      <header className="sticky top-0 z-30 flex justify-between border-b bg-base-100 px-6 py-4">
         <div className="flex items-center gap-6">
           <Link
             href={`/course/${course.id}`}

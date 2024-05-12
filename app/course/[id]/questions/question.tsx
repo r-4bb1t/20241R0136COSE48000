@@ -2,6 +2,7 @@
 
 import { QuestionType } from "@/app/types/course";
 import { useState } from "react";
+import { BsRobot } from "react-icons/bs";
 
 export default function Question({
   courseId,
@@ -46,7 +47,7 @@ export default function Question({
         {index + 1}. {question.question}
       </div>
       <textarea
-        className="textarea textarea-bordered resize-none"
+        className="textarea textarea-bordered h-32 resize-none"
         value={question.answer}
         onChange={(e) => {
           setQuestions((qs) =>
@@ -61,10 +62,15 @@ export default function Question({
         onClick={getAdvice}
         disabled={adviceLoading}
       >
-        {adviceLoading ? <div className="loading" /> : "첨삭"}
+        {adviceLoading ? <div className="loading loading-sm" /> : "제출"}
       </button>
       {question.advice && (
-        <div className="bg-black/10 p-2 text-sm">{question.advice}</div>
+        <div className="bg-black/10 px-3 py-2 text-sm">
+          <div className="mb-1 flex items-center gap-1 text-sm font-bold">
+            <BsRobot /> AI의 첨삭
+          </div>
+          {question.advice}
+        </div>
       )}
     </li>
   );

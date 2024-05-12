@@ -13,7 +13,7 @@ export default function QuestionPage({
   id: string;
   defaultQuestions: QuestionType[];
 }) {
-  const [count, setCount] = useState(5);
+  const [count, setCount] = useState(1);
   const [questions, setQuestions] = useState<QuestionType[]>(defaultQuestions);
   const [questionLoading, setQuestionLoading] = useState(false);
 
@@ -46,7 +46,7 @@ export default function QuestionPage({
 
   return (
     <>
-      <header className="sticky top-0 z-10 flex justify-between border-b bg-base-100 px-6 py-4">
+      <header className="sticky top-0 z-30 flex justify-between border-b bg-base-100 px-6 py-4">
         <div className="flex items-center gap-6">
           <Link
             href={`/course/${id}`}
@@ -75,10 +75,12 @@ export default function QuestionPage({
             >
               <BiMinus />
             </button>
-            <div className="flex w-10 items-center justify-center">{count}</div>
+            <div className="flex w-20 items-center justify-center">
+              {["", "조금", "보통", "많이"][count]}
+            </div>
             <button
               className="btn btn-square btn-outline btn-sm"
-              disabled={count >= 10}
+              disabled={count >= 3}
               onClick={() => {
                 setCount((cnt) => cnt + 1);
               }}
@@ -91,7 +93,11 @@ export default function QuestionPage({
             disabled={questionLoading}
             onClick={handleMakeQuestion}
           >
-            문제 생성
+            {questionLoading ? (
+              <div className="loading loading-sm"></div>
+            ) : (
+              "문제 생성"
+            )}
           </button>
         </div>
 

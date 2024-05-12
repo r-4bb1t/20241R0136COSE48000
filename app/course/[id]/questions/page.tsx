@@ -2,7 +2,10 @@ import { QuestionType } from "@/app/types/course";
 import Questions from "./questions";
 
 const getData = async (id: string) => {
-  const res = await fetch(`${process.env.APP_HOST}/api/course/${id}/questions`);
+  const res = await fetch(
+    `${process.env.APP_HOST}/api/course/${id}/questions`,
+    { cache: "no-store" },
+  );
   const data = await res.json();
   console.log(data);
   return data as Promise<QuestionType[]>;
