@@ -12,9 +12,8 @@ export interface CourseType {
 }
 
 export interface QuestionType {
+  id: string;
   question: string;
-  type: string;
-  choices?: string[];
   answer: string;
-  reason: string;
+  advice: string;
 }

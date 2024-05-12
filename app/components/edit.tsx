@@ -104,15 +104,23 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
     <>
       <header className="sticky top-0 z-10 flex justify-between border-b bg-base-100 px-6 py-4">
         <div className="flex items-center gap-6">
-          <Link href={`/course/${course.id}`} className="btn btn-ghost btn-sm">
+          <Link
+            href={`/course/${course.id}`}
+            className="btn btn-ghost btn-sm font-extrabold"
+          >
             강의 자료
           </Link>
-          <Link
-            href={`/course/${course.id}/questions`}
-            className="btn btn-ghost btn-sm"
+          <button
+            className="font-regular btn btn-ghost btn-sm"
+            onClick={() => {
+              if (course.id) router.push(`/course/${course.id}/questions`);
+              else {
+                handleSave();
+              }
+            }}
           >
             연습 문제
-          </Link>
+          </button>
         </div>
         <button
           className="btn btn-primary btn-sm"
