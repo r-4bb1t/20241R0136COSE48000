@@ -6,6 +6,5 @@ export const GET = async (
     cache: "no-store",
   });
   const data = await res.json();
-  console.log(data);
   return Response.json(data);
 };

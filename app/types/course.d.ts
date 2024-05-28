@@ -9,6 +9,7 @@ export interface CourseType {
   category: string;
 
   questions: QuestionType[];
+  pdf: { title: string; ocr: string; id: string }[];
 }
 
 export interface QuestionType {

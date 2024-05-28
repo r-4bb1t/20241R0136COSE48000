@@ -7,7 +7,6 @@ const getData = async (id: string) => {
     { cache: "no-store" },
   );
   const data = await res.json();
-  console.log(data);
   return data as Promise<QuestionType[]>;
 };
 

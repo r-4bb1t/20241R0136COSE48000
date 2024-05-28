@@ -69,7 +69,9 @@ export default function Question({
           <div className="mb-1 flex items-center gap-1 text-sm font-bold">
             <BsRobot /> AI의 첨삭
           </div>
-          {question.advice}
+          {question.advice.split("\n").map((line, i) => (
+            <div key={i}>{line}</div>
+          ))}
         </div>
       )}
     </li>

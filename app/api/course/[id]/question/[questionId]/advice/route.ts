@@ -18,6 +18,5 @@ export const POST = async (
   );
 
   const data = await res.json();
-  console.log(data);
   return Response.json(data);
 };

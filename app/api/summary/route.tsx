@@ -14,8 +14,6 @@ export const POST = async (req: Request) => {
 
   const data = await res.json();
 
-  console.log(data.summaries);
-
   return Response.json({
     summary: data.summaries.join("\n\n"),
   });

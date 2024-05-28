@@ -13,6 +13,8 @@ export const GET = async (
     return Response.json({ error: "Course not found" }, { status: 404 });
   }
 
+  console.log(data.pdf);
+
   return Response.json({
     id: `${data.id}`,
     title: data.course_name,
@@ -20,6 +22,7 @@ export const GET = async (
     summary: data.summary,
     department: data.department,
     category: data.category,
+    pdf: data.pdf,
   });
 };
 
@@ -28,8 +31,6 @@ export const PATCH = async (
   { params: { id } }: { params: { id: string } },
 ) => {
   const course = await req.json();
-
-  console.log(course);
 
   const res = await fetch(`${process.env.API_HOST}/course/${id}`, {
     method: "PATCH",

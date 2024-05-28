@@ -22,7 +22,7 @@ export default async function Sidebar() {
     <aside className="sticky top-0 flex h-screen min-h-0 w-80 flex-col border-r">
       <div className="px-8 py-4">
         <Link href={"/"} className="btn btn-ghost text-xl font-extrabold">
-          서비스 이름
+          동기
         </Link>
       </div>
       <ul className="h-full w-full">

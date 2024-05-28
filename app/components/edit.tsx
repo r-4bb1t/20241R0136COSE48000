@@ -1,9 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { BiCheck, BiDownload, BiMicrophone } from "react-icons/bi";
+import {
+  BiCheck,
+  BiDownload,
+  BiMicrophone,
+  BiSolidFilePdf,
+  BiX,
+} from "react-icons/bi";
 import { CourseType } from "../types/course";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import cc from "classcat";
 import { revalidateTags } from "../actions/revalidate";
 import { useRouter } from "next/navigation";
@@ -76,6 +82,23 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
     }
   };
 
+  const getOCR = async (id: string, file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch(`/api/ocr`, {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+    setCourse((course) => ({
+      ...course,
+      pdf: course.pdf.map((pdf) =>
+        pdf.id === id ? { ...pdf, ocr: data.text } : pdf,
+      ),
+    }));
+  };
+
   const handleSummary = async () => {
     try {
       setSummaryLoading(true);
@@ -146,7 +169,10 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
             className="input input-sm input-bordered w-full"
             value={course.department}
             onChange={(e) => {
-              setCourse({ ...course, department: e.target.value });
+              setCourse((course) => ({
+                ...course,
+                department: e.target.value,
+              }));
               setSaved(false);
             }}
           />
@@ -155,7 +181,7 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
             className="input input-sm input-bordered w-full"
             value={course.category}
             onChange={(e) => {
-              setCourse({ ...course, category: e.target.value });
+              setCourse((course) => ({ ...course, category: e.target.value }));
               setSaved(false);
             }}
           />
@@ -167,10 +193,68 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
             className="input input-sm input-bordered w-full"
             value={course.title}
             onChange={(e) => {
-              setCourse({ ...course, title: e.target.value });
+              setCourse((course) => ({ ...course, title: e.target.value }));
               setSaved(false);
             }}
           />
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="shrink-0 text-lg font-bold">강의 자료 (PDF)</div>
+          <input
+            className="file-input file-input-bordered file-input-sm w-full"
+            type="file"
+            accept=".pdf"
+            onChange={(e) => {
+              if (!e.target.files || !e.target.files[0]) return;
+              const id = Math.random().toString(36).substring(7);
+              setCourse((course) => ({
+                ...course,
+                pdf: [
+                  ...(course.pdf || []),
+                  {
+                    id: id,
+                    title: e.target.files![0].name,
+                    ocr: "",
+                  },
+                ],
+              }));
+              getOCR(id, e.target.files[0]);
+              setSaved(false);
+            }}
+          />
+        </div>
+        <div className="-mt-6 w-full divide-y border">
+          {course.pdf?.map((pdf) => (
+            <div
+              key={pdf.id}
+              className={cc([
+                "flex items-center justify-between gap-4 py-1 pl-2 pr-1",
+                pdf.ocr.length == 0 && "opacity-20",
+              ])}
+            >
+              <div className="flex items-center gap-4">
+                <BiSolidFilePdf />
+                {pdf.title}
+              </div>
+              {pdf.ocr.length == 0 ? (
+                <div className="loading loading-spinner loading-sm" />
+              ) : (
+                <button
+                  className="btn btn-square btn-ghost btn-sm"
+                  onClick={() => {
+                    setCourse((course) => ({
+                      ...course,
+                      pdf: course.pdf?.filter((p) => p.id !== pdf.id),
+                    }));
+                    setSaved(false);
+                  }}
+                >
+                  <BiX />
+                </button>
+              )}
+            </div>
+          ))}
         </div>
 
         <div className="flex flex-col gap-4">
@@ -205,7 +289,7 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
             <Editor
               text={course.content}
               onChange={(value: string) => {
-                setCourse({ ...course, content: value });
+                setCourse((course) => ({ ...course, content: value }));
                 setSaved(false);
               }}
               disabled={uploadLoading}
@@ -239,7 +323,7 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
             <Editor
               text={course.summary ?? ""}
               onChange={(value: string) => {
-                setCourse({ ...course, summary: value });
+                setCourse((course) => ({ ...course, summary: value }));
                 setSaved(false);
               }}
               disabled={summaryLoading}
