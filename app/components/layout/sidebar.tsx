@@ -6,9 +6,7 @@ import { GrAddCircle } from "react-icons/gr";
 const getData = async () => {
   try {
     const res = await fetch(`${process.env.APP_HOST}/api/course`, {
-      next: {
-        tags: ["course-list"],
-      },
+      cache: "no-cache",
     });
     return (await res.json()) as Promise<CourseType[]>;
   } catch (e) {

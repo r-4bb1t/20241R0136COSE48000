@@ -3,6 +3,9 @@
 import { QuestionType } from "@/app/types/course";
 import { useState } from "react";
 import { BsRobot } from "react-icons/bs";
+import showdown from "showdown";
+
+const converter = new showdown.Converter();
 
 export default function Question({
   courseId,
@@ -69,9 +72,12 @@ export default function Question({
           <div className="mb-1 flex items-center gap-1 text-sm font-bold">
             <BsRobot /> AI의 첨삭
           </div>
-          {question.advice.split("\n").map((line, i) => (
-            <div key={i}>{line}</div>
-          ))}
+          <div
+            dangerouslySetInnerHTML={{
+              __html: converter.makeHtml(question.advice),
+            }}
+            className="advice"
+          />
         </div>
       )}
     </li>
