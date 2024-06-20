@@ -9,7 +9,7 @@ import {
   BiX,
 } from "react-icons/bi";
 import { CourseType } from "../types/course";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import cc from "classcat";
 import { revalidateTags } from "../actions/revalidate";
 import { useRouter } from "next/navigation";
@@ -24,7 +24,7 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
 
   const router = useRouter();
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     setSaveLoading(true);
     try {
       if (course.id) {
@@ -46,6 +46,7 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
           body: JSON.stringify(course),
         });
         const data = await res.json();
+        setCourse({ ...course, id: data.id });
         router.push(`/course/${data.id}`);
       }
       setSaved(true);
@@ -59,30 +60,33 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
     } finally {
       setSaveLoading(false);
     }
-  };
+  }, [course, router]);
 
-  const handleUpload = async (file: File) => {
-    setUploadLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("department", course.department);
-      formData.append("category", course.category);
+  const handleUpload = useCallback(
+    async (file: File) => {
+      try {
+        setUploadLoading(true);
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("department", course.department);
+        formData.append("category", course.category);
 
-      const res = await fetch(`/api/upload`, {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-      setCourse({ ...course, content: data.transcript });
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setUploadLoading(false);
-    }
-  };
+        const res = await fetch(`/api/upload`, {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        setCourse({ ...course, content: data.transcript });
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setUploadLoading(false);
+      }
+    },
+    [course],
+  );
 
-  const getOCR = async (id: string, file: File) => {
+  const getOCR = useCallback(async (id: string, file: File) => {
     const formData = new FormData();
     formData.append("file", file);
 
@@ -97,9 +101,9 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
         pdf.id === id ? { ...pdf, ocr: data.text } : pdf,
       ),
     }));
-  };
+  }, []);
 
-  const handleSummary = async () => {
+  const handleSummary = useCallback(async () => {
     try {
       setSummaryLoading(true);
       const res = await fetch(`/api/summary`, {
@@ -121,7 +125,7 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
     } finally {
       setSummaryLoading(false);
     }
-  };
+  }, [course]);
 
   return (
     <>
@@ -225,7 +229,12 @@ export default function Edit({ defaultValue }: { defaultValue: CourseType }) {
           />
         </div>
         <div className="-mt-6 w-full divide-y border">
-          {course.pdf?.map((pdf) => (
+          {course.pdf.length === 0 && (
+            <div className="w-full p-2 text-center text-sm">
+              등록된 PDF가 없습니다.
+            </div>
+          )}
+          {course.pdf.map((pdf) => (
             <div
               key={pdf.id}
               className={cc([
